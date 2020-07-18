@@ -1,20 +1,45 @@
+require("dotenv").config();
 const express = require("express");
+const axios = require("axios");
+const convert = require("xml-js");
+const rateLimit = require("express-rate-limit");
 const path = require("path");
 const generatePassword = require("password-generator");
+
+const listRouter = require("./routes/lists");
 
 const app = express();
 
 // Serve static files from React app
 app.use(express.static(path.join(__dirname, "client/build")));
 
-// Put all API endpoints under '/api'
-app.get("/api/passwords", (req, res) => {
-  const count = 5;
-  const passwords = Array.from(Array(count).keys()).map((i) =>
-    generatePassword(12, false)
-  );
-  res.json(passwords);
-  console.log(`Sent ${count} passwords`);
+app.use("/api/lists", listRouter);
+
+app.get("/api/search", async (req, res) => {
+  try {
+    //const searchString = `q=${req.query.q}`
+    const searchString = "hello";
+    axios
+      .get(
+        `https://www.goodreads.com/search/index.xml?key=${process.env.GOODREADS_API_KEY}&${searchString}`
+      )
+      .then((resp) => {
+        const xml = resp.data;
+        const json = convert.xml2json(xml, { compact: true, spaces: 2 });
+        const results = JSON.parse(json);
+        console.log(results);
+
+        return res.json({
+          success: true,
+          results,
+        });
+      });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
 });
 
 // For any request that doesn't match above, send back React index.html

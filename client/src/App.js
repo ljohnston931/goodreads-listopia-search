@@ -1,34 +1,29 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import axios from "axios";
 
 const App = () => {
-  const [passwords, setPasswords] = useState([]);
+  const [display, setDisplay] = useState("");
 
-  const getPasswords = () => {
-    fetch("/api/passwords")
-      .then((res) => res.json())
-      .then((passwords) => setPasswords(passwords));
+  const getResponse = () => {
+    axios
+      .get("/api/lists/in-common")
+      .then((resp) => setDisplay(resp.data))
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   useEffect(() => {
-    getPasswords();
+    getResponse();
   }, []);
 
   return (
     <div className="App">
-      {passwords.length ? (
-        <div>
-          {passwords.map((password) => (
-            <p key={password}>{password}</p>
-          ))}
-          <button onClick={getPasswords}>Get More</button>
-        </div>
-      ) : (
-        <div>
-          No passwords
-          <button onClick={getPasswords}>Try Again</button>
-        </div>
-      )}
+      <div>
+        <p>{JSON.stringify(display)}</p>
+        <button onClick={getResponse}>Get More</button>
+      </div>
     </div>
   );
 };
