@@ -7,7 +7,9 @@ const App = () => {
 
   const getResponse = () => {
     axios
-      .get("/api/lists/in-common")
+      .post("/api/lists/in-common", {
+        bookIds: [30962053, 6759],
+      })
       .then((resp) => setDisplay(resp.data))
       .catch((error) => {
         console.log(error);

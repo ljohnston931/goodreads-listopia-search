@@ -4,11 +4,11 @@ const axios = require("axios");
 const convert = require("xml-js");
 const rateLimit = require("express-rate-limit");
 const path = require("path");
-const generatePassword = require("password-generator");
-
+const bodyParser = require("body-parser");
 const listRouter = require("./routes/lists");
 
 const app = express();
+app.use(bodyParser.json());
 
 // Serve static files from React app
 app.use(express.static(path.join(__dirname, "client/build")));
@@ -50,4 +50,4 @@ app.get("*", (req, res) => {
 const port = process.env.PORT || 5000;
 app.listen(port);
 
-console.log(`Password generator listening on ${port}`);
+console.log(`Server listening on ${port}`);
