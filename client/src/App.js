@@ -1,31 +1,29 @@
 import React, { useState, useEffect } from "react";
+import Header from "./header/Header";
 import "./App.css";
-import axios from "axios";
+import BookAuthorCombos from "./book-author-combos/BookAuthorCombos";
 
 const App = () => {
   const [display, setDisplay] = useState("");
-
-  const getResponse = () => {
-    axios
-      .post("/api/lists/in-common", {
-        bookIds: [30962053, 6759],
-      })
-      .then((resp) => setDisplay(resp.data))
-      .catch((error) => {
-        console.log(error);
-      });
+  const theIdiot = {
+    bookId: 30962053,
+    title: "The Idiot",
+    authorId: 39846,
+    authorName: "Elif Batuman",
   };
-
-  useEffect(() => {
-    getResponse();
-  }, []);
+  const deathlyHallows = 136251;
+  const infiniteJest = {
+    bookId: 6759,
+    title: "Infinite Jest",
+    authorId: 4339,
+    authorName: "David Foster Wallace",
+  };
+  const [queryBooks, setQueryBooks] = useState([theIdiot, infiniteJest]);
 
   return (
     <div className="App">
-      <div>
-        <p>{JSON.stringify(display)}</p>
-        <button onClick={getResponse}>Get More</button>
-      </div>
+      <Header />
+      <BookAuthorCombos queryBooks={queryBooks} />
     </div>
   );
 };
