@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from "./header/Header";
 import "./App.css";
 import BookAuthorCombos from "./book-author-combos/BookAuthorCombos";
 
 const App = () => {
-  const [display, setDisplay] = useState("");
   const theIdiot = {
     bookId: 30962053,
     title: "The Idiot",

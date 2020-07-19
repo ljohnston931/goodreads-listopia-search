@@ -26,7 +26,7 @@ const Comparison = (props) => {
       if (queryBook.bookId) {
         return queryBook.title;
       } else {
-        return `Books by ${queryBook.authorName}`;
+        return `books by ${queryBook.authorName}`;
       }
     });
     return `Lists that contain ${listToString(titleAuthorStrings)}`;
