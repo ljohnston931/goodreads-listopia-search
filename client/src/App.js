@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Header from "./header/Header";
 import "./App.css";
 import BookAuthorCombos from "./book-author-combos/BookAuthorCombos";
+import { set } from "lodash";
 
 const App = () => {
   const theIdiot = {
@@ -17,11 +18,12 @@ const App = () => {
     authorId: 4339,
     authorName: "David Foster Wallace",
   };
+
   const [queryBooks, setQueryBooks] = useState([theIdiot, infiniteJest]);
 
   return (
     <div className="App">
-      <Header />
+      <Header setQueryBooks={setQueryBooks} />
       <BookAuthorCombos queryBooks={queryBooks} />
     </div>
   );

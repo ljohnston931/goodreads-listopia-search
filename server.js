@@ -6,6 +6,7 @@ const rateLimit = require("express-rate-limit");
 const path = require("path");
 const bodyParser = require("body-parser");
 const listRouter = require("./routes/lists");
+const bookRouter = require("./routes/books");
 
 const app = express();
 app.use(bodyParser.json());
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "client/build")));
 
 app.use("/api/lists", listRouter);
+app.use("/api/books", bookRouter);
 
 app.get("/api/search", async (req, res) => {
   try {
@@ -27,7 +29,6 @@ app.get("/api/search", async (req, res) => {
         const xml = resp.data;
         const json = convert.xml2json(xml, { compact: true, spaces: 2 });
         const results = JSON.parse(json);
-        console.log(results);
 
         return res.json({
           success: true,

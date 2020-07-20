@@ -1,7 +1,10 @@
+#header {
+  padding: 0px 24px;
+}
 .title {
   font-family: x-locale-heading-primary, Palatino, "Palatino Linotype",
     x-locale-heading-secondary, serif;
   font-size: 50px;
   font-weight: 700;
-  padding: 12px 24px;
+  padding: 12px 0px;
 }

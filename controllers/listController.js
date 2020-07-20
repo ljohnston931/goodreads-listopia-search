@@ -1,6 +1,6 @@
 const ListService = require("../services/ListService");
 const ListServiceInstance = new ListService();
-//import ListService from "../services/ListService";
+
 exports.getListsInCommon = async (req, res) => {
   let { bookIds, authorIds } = req.body;
 

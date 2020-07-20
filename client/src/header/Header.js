@@ -1,10 +1,12 @@
 import React from "react";
+import Search from "./search/Search";
 import "./header.css";
 
-const Header = () => {
+const Header = (props) => {
   return (
-    <section id="heading">
+    <section id="header">
       <div className="title">Goodreads Analyzer</div>
+      <Search {...props} />
     </section>
   );
 };

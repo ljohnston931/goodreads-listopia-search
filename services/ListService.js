@@ -42,13 +42,13 @@ class ListService {
       this.getBookLists(bookIds),
       this.getAuthorLists(authorIds),
     ]);
-    console.log("get lists", new Date() - start);
+    //console.log("get lists", new Date() - start);
     start = new Date();
     const arraysToCompare = bookLists
       .map((bookList) => bookList.lists)
       .concat(authorLists.map((authorList) => authorList.lists));
     const listsInCommon = _.intersectionBy(...arraysToCompare, "href");
-    console.log("compare lists", new Date() - start);
+    //console.log("compare lists", new Date() - start);
     return listsInCommon;
   }
 
@@ -64,7 +64,7 @@ class ListService {
 
   async getListsForBook(bookId) {
     let start = new Date();
-    console.log("starting ", bookId);
+    //console.log("starting ", bookId);
     const firstPageResp = await axios.get(
       `https://www.goodreads.com/list/book/${bookId}`
     );
@@ -85,7 +85,7 @@ class ListService {
       const parser = new HtmlParser(resp.data);
       return parser.getListsOnPage();
     });
-    console.log("end", "book:", bookId, new Date() - start);
+    //console.log("end", "book:", bookId, new Date() - start);
     return firstPageLists.concat(_.flatten(otherPagesLists));
   }
 

@@ -26,7 +26,7 @@ const Comparison = (props) => {
       if (queryBook.bookId) {
         return queryBook.title;
       } else {
-        return `books by ${queryBook.authorName}`;
+        return `a book by ${queryBook.authorName}`;
       }
     });
     return `Lists that contain ${listToString(titleAuthorStrings)}`;
@@ -46,10 +46,6 @@ const Comparison = (props) => {
 
     return resp.data;
   };
-
-  useEffect(() => {
-    console.log(listsInCommon);
-  }, [listsInCommon]);
 
   useEffect(() => {
     setLoading(true);

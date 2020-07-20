@@ -33,7 +33,7 @@ const BookAuthorCombos = (props) => {
     const newCombos = getBookAuthorCombos(props.queryBooks);
     setBookAuthorCombos(newCombos);
   }, [props.queryBooks]);
-  console.log("combos", bookAuthorCombos);
+
   return (
     <section id="book-author-combos">
       {bookAuthorCombos.map((bookAuthorCombo) => (
