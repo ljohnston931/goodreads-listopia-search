@@ -43,7 +43,7 @@ const Comparison = (props) => {
       bookIds: bookIds,
       authorIds: authorIds,
     });
-
+    console.log(resp.data);
     return resp.data;
   };
 

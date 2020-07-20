@@ -14,3 +14,19 @@ exports.search = async (req, res) => {
     res.status(500).send(error);
   }
 };
+
+exports.getGoodreadsBooks = async (req, res) => {
+  if (!req.body || !req.body.isbns) {
+    res.status(400).send("Missing parameter 'isbns'");
+  }
+
+  try {
+    const goodreadsBooks = await BookServiceInstance.getGoodreadsBooks(
+      req.body.isbns
+    );
+    res.send(goodreadsBooks);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+};

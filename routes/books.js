@@ -5,4 +5,6 @@ const bookRouter = express.Router();
 
 bookRouter.get("/", bookController.search);
 
+bookRouter.post("/", bookController.getGoodreadsBooks);
+
 module.exports = bookRouter;

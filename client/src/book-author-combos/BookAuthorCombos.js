@@ -7,8 +7,8 @@ const BookAuthorCombos = (props) => {
     queryBooks.reduce((combos, book) => {
       const bookInfo = { bookId: book.bookId, title: book.title };
       const authorInfo = {
-        authorId: book.authorId,
-        authorName: book.authorName,
+        authorId: book.author.id,
+        authorName: book.author.name,
       };
 
       let previousCombos = combos.map((combo) => combo);
@@ -27,16 +27,9 @@ const BookAuthorCombos = (props) => {
       return combos;
     }, []);
 
-  const [bookAuthorCombos, setBookAuthorCombos] = useState([]);
-
-  useEffect(() => {
-    const newCombos = getBookAuthorCombos(props.queryBooks);
-    setBookAuthorCombos(newCombos);
-  }, [props.queryBooks]);
-
   return (
     <section id="book-author-combos">
-      {bookAuthorCombos.map((bookAuthorCombo) => (
+      {getBookAuthorCombos(props.queryBooks).map((bookAuthorCombo) => (
         <Comparison
           key={JSON.stringify(bookAuthorCombo)}
           bookAuthorCombo={bookAuthorCombo}
