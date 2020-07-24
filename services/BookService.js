@@ -3,6 +3,8 @@ const convert = require("xml-js");
 const _ = require("lodash");
 const { query } = require("express");
 require("dotenv").config();
+const db = require("../models/index");
+const { Op } = require("sequelize");
 
 class BookService {
   isSeries(item) {
@@ -34,18 +36,32 @@ class BookService {
 
   async getGoodreadsBooks(queries) {
     const books = await Promise.all(
-      queries.map((query) => this.searchGoodreads(query))
+      queries.map((query) => this.findOrCreateBook(query))
     );
     return books.map((book) => {
       return {
-        bookId: book.id._text,
-        title: book.title._text,
+        bookId: book.bookId,
+        title: book.title,
         author: {
-          name: book.author.name._text,
-          id: book.author.id._text,
+          name: book.authorName,
+          id: book.authorId,
         },
       };
     });
+  }
+
+  async findOrCreateBook(query) {
+    let book = await db.Books.findOne({
+      where: {
+        [Op.and]: [{ title: query.title }, { authorName: query.author }],
+      },
+    });
+    if (!book) {
+      console.log("getting book from goodreads");
+      book = await this.searchGoodreads(query);
+      await db.Books.create(book);
+    }
+    return book;
   }
 
   async searchGoodreads(query) {
@@ -61,11 +77,18 @@ class BookService {
     if (!(results instanceof Array)) {
       results = [results];
     }
-    return results.find(
+    const goodreadsBook = results.find(
       (result) =>
         result.best_book.author.name._text === query.author &&
         result.best_book.title._text === query.title
     ).best_book;
+
+    return {
+      bookId: goodreadsBook.id._text,
+      title: goodreadsBook.title._text,
+      authorName: goodreadsBook.author.name._text,
+      authorId: goodreadsBook.author.id._text,
+    };
   }
 }
 
