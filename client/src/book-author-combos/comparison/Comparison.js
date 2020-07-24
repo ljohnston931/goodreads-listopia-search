@@ -43,14 +43,18 @@ const Comparison = (props) => {
       bookIds: bookIds,
       authorIds: authorIds,
     });
-    console.log(resp.data);
+    debugger;
     return resp.data;
   };
 
   useEffect(() => {
     setLoading(true);
+    setError(false);
+    setListsInCommon([]);
+
     getListsInCommon()
       .then((newListsInCommon) => {
+        debugger;
         setListsInCommon(newListsInCommon);
       })
       .catch((error) => {

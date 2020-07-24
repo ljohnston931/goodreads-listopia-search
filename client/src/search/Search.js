@@ -22,7 +22,6 @@ const Search = (props) => {
           };
         }),
       });
-      console.log("...", resp.data);
       props.setQueryBooks(resp.data);
     } catch (error) {
       console.log(error);

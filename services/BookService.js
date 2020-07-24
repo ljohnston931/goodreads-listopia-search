@@ -57,7 +57,6 @@ class BookService {
       },
     });
     if (!book) {
-      console.log("getting book from goodreads");
       book = await this.searchGoodreads(query);
       await db.books.create(book);
     }
