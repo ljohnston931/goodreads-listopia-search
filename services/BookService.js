@@ -51,7 +51,7 @@ class BookService {
   }
 
   async findOrCreateBook(query) {
-    let book = await db.Books.findOne({
+    let book = await db.books.findOne({
       where: {
         [Op.and]: [{ title: query.title }, { authorName: query.author }],
       },
@@ -59,7 +59,7 @@ class BookService {
     if (!book) {
       console.log("getting book from goodreads");
       book = await this.searchGoodreads(query);
-      await db.Books.create(book);
+      await db.books.create(book);
     }
     return book;
   }

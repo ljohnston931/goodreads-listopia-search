@@ -1,6 +1,7 @@
 const axios = require("axios");
 const _ = require("lodash");
 const cheerio = require("cheerio");
+const db = require("../models/index");
 
 class HtmlParser {
   constructor(document) {
@@ -37,34 +38,47 @@ class HtmlParser {
 
 class ListService {
   async getListsInCommon(bookIds, authorIds) {
-    let start = new Date();
     const [bookLists, authorLists] = await Promise.all([
       this.getBookLists(bookIds),
       this.getAuthorLists(authorIds),
     ]);
-    //console.log("get lists", new Date() - start);
-    start = new Date();
     const arraysToCompare = bookLists
       .map((bookList) => bookList.lists)
       .concat(authorLists.map((authorList) => authorList.lists));
     const listsInCommon = _.intersectionBy(...arraysToCompare, "href");
-    //console.log("compare lists", new Date() - start);
+
     return listsInCommon;
   }
 
   async getBookLists(bookIds) {
     return Promise.all(
-      bookIds.map((bookId) => {
-        return this.getListsForBook(bookId).then((lists) => {
-          return { bookId, lists };
-        });
+      bookIds.map(async (bookId) => {
+        let bookLists = await db.lists.findAll({ where: { bookId: bookId } });
+        if (bookLists.length) {
+          return {
+            bookId: bookId,
+            lists: bookLists.map((list) => {
+              return { title: list.listTitle, href: list.listHref };
+            }),
+          };
+        }
+
+        bookLists = await this.getListsForBookFromGoodreads(bookId);
+        await db.lists.bulkCreate(
+          bookLists.map((list) => {
+            return {
+              bookId: bookId,
+              listTitle: list.title,
+              listHref: list.href,
+            };
+          })
+        );
+        return { bookId, lists: bookLists };
       })
     );
   }
 
-  async getListsForBook(bookId) {
-    let start = new Date();
-    //console.log("starting ", bookId);
+  async getListsForBookFromGoodreads(bookId) {
     const firstPageResp = await axios.get(
       `https://www.goodreads.com/list/book/${bookId}`
     );
@@ -85,7 +99,6 @@ class ListService {
       const parser = new HtmlParser(resp.data);
       return parser.getListsOnPage();
     });
-    //console.log("end", "book:", bookId, new Date() - start);
     return firstPageLists.concat(_.flatten(otherPagesLists));
   }
 
