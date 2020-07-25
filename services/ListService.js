@@ -1,4 +1,4 @@
-const axios = require("axios");
+const http = require("../http");
 const _ = require("lodash");
 const cheerio = require("cheerio");
 const db = require("../models/index");
@@ -55,19 +55,13 @@ class ListService {
   async getBookLists(bookIds) {
     return Promise.all(
       bookIds.map(async (bookId) => {
-        let bookLists = await db.lists.findAll({ where: { book_id: bookId } });
+        let bookLists = await db.lists.findAll({
+          attributes: ["list_title", "list_href"],
+          where: { book_id: bookId },
+        });
 
         if (!bookLists.length) {
           bookLists = await this.getListsForBookFromGoodreads(bookId);
-          db.lists.bulkCreate(
-            bookLists.map((list) => {
-              return {
-                book_id: bookId,
-                list_title: list.list_title,
-                list_href: list.list_href,
-              };
-            })
-          );
         }
 
         return {
@@ -81,18 +75,25 @@ class ListService {
   }
 
   async getListsForBookFromGoodreads(bookId) {
-    const firstPageResp = await axios.get(
+    const firstPageResp = await http.get(
       `https://www.goodreads.com/list/book/${bookId}`
     );
+
     const parser = new HtmlParser(firstPageResp.data);
     const firstPageLists = parser.getListsOnPage();
     if (firstPageLists.length === 0) {
+      console.log("no lists for", bookId);
+      await db.lists.create({
+        book_id: bookId,
+        list_title: null,
+        list_href: null,
+      });
       return [];
     }
     const totalPages = parser.getTotalPages();
     const otherPages = _.range(2, totalPages + 1, 1);
-    const otherPagesPromises = otherPages.map((pageNumber) =>
-      axios.get(
+    const otherPagesPromises = otherPages.map(async (pageNumber) =>
+      http.get(
         `https://www.goodreads.com/list/book/${bookId}?page=${pageNumber}`
       )
     );
@@ -101,7 +102,20 @@ class ListService {
       const parser = new HtmlParser(resp.data);
       return parser.getListsOnPage();
     });
-    return firstPageLists.concat(_.flatten(otherPagesLists));
+    console.log("got lists for", bookId);
+    const bookLists = firstPageLists.concat(_.flatten(otherPagesLists));
+
+    await db.lists.bulkCreate(
+      bookLists.map((list) => {
+        return {
+          book_id: bookId,
+          list_title: list.list_title,
+          list_href: list.list_href,
+        };
+      })
+    );
+
+    return bookLists;
   }
 
   async getAuthorLists(authorIds) {
@@ -112,9 +126,24 @@ class ListService {
 
   async getListsForAuthor(authorId) {
     const bookIds = await AuthorServiceInstance.getBooksByAuthor(authorId);
-    let lists = await Promise.all(
-      bookIds.map((bookId) => this.getListsForBookFromGoodreads(bookId))
+    const bookListsFromDatabase = await db.lists.findAll({
+      attributes: ["book_id", "list_title", "list_href"],
+      where: { book_id: bookIds },
+    });
+    const bookIdsInDatabase = [
+      ...new Set(bookListsFromDatabase.map((list) => list.book_id)),
+    ];
+    const bookIdsNotInDatabase = bookIds.filter(
+      (bookId) => !bookIdsInDatabase.includes(bookId)
     );
+    console.log("ids in database", bookIdsInDatabase);
+    console.log("ids not in database", bookIdsNotInDatabase);
+    const bookListsFromGoodreads = await Promise.all(
+      bookIdsNotInDatabase.map((bookId) =>
+        this.getListsForBookFromGoodreads(bookId)
+      )
+    );
+    let lists = bookListsFromDatabase.concat(bookListsFromGoodreads);
     lists = _.flatten(lists);
     lists = lists.map((list) => {
       return { title: list.list_title, href: list.list_href };
@@ -122,5 +151,9 @@ class ListService {
     return { authorId: authorId, lists: lists };
   }
 }
+
+const sleep = (ms) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};
 
 module.exports = ListService;

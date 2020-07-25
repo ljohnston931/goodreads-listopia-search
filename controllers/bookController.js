@@ -26,7 +26,10 @@ exports.getGoodreadsBooks = async (req, res) => {
     );
     res.send(goodreadsBooks);
   } catch (error) {
-    console.log(error);
-    res.status(500).send(error);
+    if (error.status) {
+      res.status(error.status).send(error.message);
+    } else {
+      res.status(500).send(error);
+    }
   }
 };

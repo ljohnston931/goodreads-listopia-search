@@ -1,10 +1,11 @@
-const axios = require("axios");
+const http = require("../http");
 const convert = require("xml-js");
 const _ = require("lodash");
 const { query } = require("express");
 require("dotenv").config();
 const db = require("../models/index");
 const { Op } = require("sequelize");
+const axios = require("axios");
 
 class BookService {
   isSeries(item) {
@@ -15,7 +16,9 @@ class BookService {
   async search(query) {
     const resp = await axios.get(
       "https://www.googleapis.com/books/v1/volumes",
-      { params: { q: query, printType: "books" } }
+      {
+        params: { q: query, printType: "books" },
+      }
     );
     const results = resp.data.items
       .map((item) => {
@@ -30,7 +33,9 @@ class BookService {
       })
       .filter((item) => item)
       .filter((item) => !this.isSeries(item));
-    const uniqueResults = _.uniqWith(results, _.isEqual);
+    const uniqueResults = _.uniqBy(results, (item) =>
+      (item.title + item.author).toLowerCase()
+    );
     return uniqueResults;
   }
 
@@ -62,7 +67,7 @@ class BookService {
   }
 
   async searchGoodreads(query) {
-    const resp = await axios.get(`https://www.goodreads.com/search/index.xml`, {
+    const resp = await http.get(`https://www.goodreads.com/search/index.xml`, {
       params: {
         key: process.env.GOODREADS_API_KEY,
         q: `${query.title} ${query.author}`,
@@ -71,6 +76,12 @@ class BookService {
 
     const json = convert.xml2json(resp.data, { compact: true, spaces: 2 });
     let results = JSON.parse(json).GoodreadsResponse.search.results.work;
+    if (!results) {
+      return Promise.reject({
+        status: 404,
+        message: `${query.title} not found in Goodreads`,
+      });
+    }
     if (!(results instanceof Array)) {
       results = [results];
     }

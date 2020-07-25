@@ -18,7 +18,6 @@ app.get("*", (req, res) => {
 });
 
 const db = require("./models/index");
-db.sequelize.sync({ force: true });
 
 const port = process.env.PORT || 5000;
 app.listen(port);

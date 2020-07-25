@@ -1,4 +1,4 @@
-const axios = require("axios");
+const http = require("../http");
 const convert = require("xml-js");
 const _ = require("lodash");
 const { query } = require("express");
@@ -8,12 +8,27 @@ const { Op } = require("sequelize");
 
 class AuthorService {
   async getBooksByAuthor(authorId) {
-    // let bookIds = await this.getBooksByAuthorFromDatabase(authorId)
-    // if (!bookIds.length){
-    //     bookIds = this.getBooksByAuthorFromGoodreads(authorId)
-    //     db.authorBook
-    // }
-    return await this.getBooksByAuthorFromGoodreads(authorId);
+    let bookIds = await this.getBooksByAuthorFromDatabase(authorId);
+    if (!bookIds.length) {
+      bookIds = await this.getBooksByAuthorFromGoodreads(authorId);
+      await db.author_books.bulkCreate(
+        bookIds.map((bookId) => {
+          return {
+            author_id: authorId,
+            book_id: bookId,
+          };
+        })
+      );
+    }
+    return bookIds;
+  }
+
+  async getBooksByAuthorFromDatabase(authorId) {
+    const results = await db.author_books.findAll({
+      attributes: ["book_id"],
+      where: { author_id: authorId },
+    });
+    return results.map((results) => results.dataValues.book_id);
   }
 
   async getBooksByAuthorFromGoodreads(authorId) {
@@ -22,16 +37,13 @@ class AuthorService {
     let page = 1;
 
     while (getAnotherPage) {
-      const resp = await axios.get(
-        `https://www.goodreads.com/author/list.xml`,
-        {
-          params: {
-            key: process.env.GOODREADS_API_KEY,
-            id: authorId,
-            page: page,
-          },
-        }
-      );
+      const resp = await http.get(`https://www.goodreads.com/author/list.xml`, {
+        params: {
+          key: process.env.GOODREADS_API_KEY,
+          id: authorId,
+          page: page,
+        },
+      });
       const json = convert.xml2json(resp.data, { compact: true, spaces: 2 });
       const results = JSON.parse(json).GoodreadsResponse.author.books;
       let books = results.book;

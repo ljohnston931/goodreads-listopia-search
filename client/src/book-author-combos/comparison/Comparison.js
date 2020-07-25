@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Message from "./Message";
 import "./comparison.css";
 
 const Comparison = (props) => {
   const [listsInCommon, setListsInCommon] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  let message = "";
 
   const listToString = (list) => {
     if (list.length === 0) {
@@ -53,32 +54,43 @@ const Comparison = (props) => {
 
   useEffect(() => {
     setLoading(true);
-    setError(false);
     setListsInCommon([]);
 
     getListsInCommon()
       .then((newListsInCommon) => {
+        if (newListsInCommon.length === 0) {
+          message = "No lists found";
+        } else {
+          message = "";
+        }
         setListsInCommon(newListsInCommon);
       })
       .catch((error) => {
-        setError(true);
+        message = "Error encountered (Contact Lucy)";
       })
       .then(() => {
         setLoading(false);
       });
   }, [props.bookAuthorCombo]);
 
+  useEffect(() => {
+    if (loading) {
+      message = "Scraping from Goodreads ... ";
+
+      const interval = setInterval(() => {
+        //console.log(message, message + "\nStill scraping ...");
+        message += "\nStill scraping ...";
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [loading]);
+
   return (
     <section id="comparison">
       <div className="comparison-header">
         {createHeader(props.bookAuthorCombo)}
       </div>
-
-      {loading && <div>Scraping from Goodreads ... </div>}
-      {error && <div>Error encountered (Contact Lucy) </div>}
-      {!loading && !error && listsInCommon.length === 0 && (
-        <div>No lists found.</div>
-      )}
+      <Message message={message} />
       <div className="results">
         {listsInCommon.map((list) => (
           <div key={list.href}>
