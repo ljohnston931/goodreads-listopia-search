@@ -29,7 +29,12 @@ const Comparison = (props) => {
         return `a book by ${queryBook.authorName}`;
       }
     });
-    return `Lists that contain ${listToString(titleAuthorStrings)}`;
+    const lengthString = listsInCommon.length
+      ? `(${listsInCommon.length})`
+      : "";
+    return `Lists that contain ${listToString(
+      titleAuthorStrings
+    )} ${lengthString}`;
   };
 
   const getListsInCommon = async () => {
@@ -43,7 +48,6 @@ const Comparison = (props) => {
       bookIds: bookIds,
       authorIds: authorIds,
     });
-    debugger;
     return resp.data;
   };
 
@@ -54,7 +58,6 @@ const Comparison = (props) => {
 
     getListsInCommon()
       .then((newListsInCommon) => {
-        debugger;
         setListsInCommon(newListsInCommon);
       })
       .catch((error) => {
