@@ -30,7 +30,11 @@ class AuthorService {
       );
       const json = convert.xml2json(resp.data, { compact: true, spaces: 2 });
       const results = JSON.parse(json).GoodreadsResponse.author.books;
-      bookIds = bookIds.concat(results.book.map((book) => book.id._text));
+      let books = results.book;
+      if (!(books instanceof Array)) {
+        books = [books];
+      }
+      bookIds = bookIds.concat(books.map((book) => book.id._text));
       getAnotherPage = results._attributes.end !== results._attributes.total;
       // console.log("get", results._attributes, getAnotherPage, page);
       page++;

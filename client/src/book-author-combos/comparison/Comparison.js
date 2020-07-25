@@ -74,8 +74,11 @@ const Comparison = (props) => {
         {createHeader(props.bookAuthorCombo)}
       </div>
 
-      {loading && <div>Loading ... </div>}
+      {loading && <div>Scraping from Goodreads ... </div>}
       {error && <div>Error encountered (Contact Lucy) </div>}
+      {!loading && !error && listsInCommon.length === 0 && (
+        <div>No lists found.</div>
+      )}
       <div className="results">
         {listsInCommon.map((list) => (
           <div key={list.href}>
