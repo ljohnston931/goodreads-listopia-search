@@ -36,7 +36,6 @@ class AuthorService {
       }
       bookIds = bookIds.concat(books.map((book) => book.id._text));
       getAnotherPage = results._attributes.end !== results._attributes.total;
-      // console.log("get", results._attributes, getAnotherPage, page);
       page++;
     }
 
