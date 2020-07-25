@@ -2,6 +2,8 @@ const axios = require("axios");
 const _ = require("lodash");
 const cheerio = require("cheerio");
 const db = require("../models/index");
+const AuthorService = require("./AuthorService");
+const AuthorServiceInstance = new AuthorService();
 
 class HtmlParser {
   constructor(document) {
@@ -103,20 +105,18 @@ class ListService {
   }
 
   async getAuthorLists(authorIds) {
-    return Promise.resolve([]);
-    /* [
-            [
-                authorId: ***,
-                lists: [
-                    {
-                        title,
-                        imgs,
-                        link,
-                        id
-                    }
-                ]
-            ]
-        ]*/
+    return await Promise.all(
+      authorIds.map(async (authorId) => this.getListsForAuthor(authorId))
+    );
+  }
+
+  async getListsForAuthor(authorId) {
+    const bookIds = await AuthorServiceInstance.getBooksByAuthor(authorId);
+    let lists = await Promise.all(
+      bookIds.map((bookId) => this.getListsForBookFromGoodreads(bookId))
+    );
+    lists = _.flatten(lists);
+    return { authorId: authorId, lists: lists };
   }
 }
 

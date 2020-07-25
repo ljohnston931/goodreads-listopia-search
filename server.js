@@ -25,3 +25,24 @@ const port = process.env.PORT || 5000;
 app.listen(port);
 
 console.log(`Server listening on ${port}`);
+
+// const AuthorService = require("./services/AuthorService");
+// const as = new AuthorService();
+// as.getBooksByAuthorFromGoodreads(8885).then((res) => console.log(res));
+
+// const ids = [29906980, 786699, 13641208, 6759, 26893819, 4667024];
+// const ListService = require("./services/ListService");
+// const ls = new ListService();
+// let start = new Date();
+// console.log("a");
+// ls.getListsFromDatabase(ids).then(() => {
+//   console.log(new Date() - start);
+//   start = new Date();
+//   ls.getListsB(ids).then(() => {
+//     console.log(new Date() - start);
+//     start = new Date();
+//     ls.getListsFromDatabase(ids).then(() => {
+//       console.log(new Date() - start);
+//     });
+//   });
+// });
