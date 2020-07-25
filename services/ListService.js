@@ -15,8 +15,8 @@ class HtmlParser {
     this.$(".cell").each((listIndex, cell) => {
       const listTitle = this.$(cell).find(".listTitle");
       lists[listIndex] = {
-        title: listTitle.text(),
-        href: listTitle.attr("href").split("#")[0],
+        list_title: listTitle.text(),
+        list_href: listTitle.attr("href").split("#")[0],
       };
     });
 
@@ -55,27 +55,27 @@ class ListService {
   async getBookLists(bookIds) {
     return Promise.all(
       bookIds.map(async (bookId) => {
-        let bookLists = await db.lists.findAll({ where: { bookId: bookId } });
-        if (bookLists.length) {
-          return {
-            bookId: bookId,
-            lists: bookLists.map((list) => {
-              return { title: list.listTitle, href: list.listHref };
-            }),
-          };
+        let bookLists = await db.lists.findAll({ where: { book_id: bookId } });
+
+        if (!bookLists.length) {
+          bookLists = await this.getListsForBookFromGoodreads(bookId);
+          db.lists.bulkCreate(
+            bookLists.map((list) => {
+              return {
+                book_id: bookId,
+                list_title: list.list_title,
+                list_href: list.list_href,
+              };
+            })
+          );
         }
 
-        bookLists = await this.getListsForBookFromGoodreads(bookId);
-        await db.lists.bulkCreate(
-          bookLists.map((list) => {
-            return {
-              bookId: bookId,
-              listTitle: list.title,
-              listHref: list.href,
-            };
-          })
-        );
-        return { bookId, lists: bookLists };
+        return {
+          bookId,
+          lists: bookLists.map((list) => {
+            return { title: list.list_title, href: list.list_href };
+          }),
+        };
       })
     );
   }
@@ -116,6 +116,9 @@ class ListService {
       bookIds.map((bookId) => this.getListsForBookFromGoodreads(bookId))
     );
     lists = _.flatten(lists);
+    lists = lists.map((list) => {
+      return { title: list.list_title, href: list.list_href };
+    });
     return { authorId: authorId, lists: lists };
   }
 }

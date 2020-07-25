@@ -8,7 +8,11 @@ const { Op } = require("sequelize");
 
 class AuthorService {
   async getBooksByAuthor(authorId) {
-    //const bookIds = db.booksbyAuthor
+    // let bookIds = await this.getBooksByAuthorFromDatabase(authorId)
+    // if (!bookIds.length){
+    //     bookIds = this.getBooksByAuthorFromGoodreads(authorId)
+    //     db.authorBook
+    // }
     return await this.getBooksByAuthorFromGoodreads(authorId);
   }
 

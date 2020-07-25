@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define("book", {
-    bookId: {
+    book_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
@@ -10,11 +10,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    authorName: {
+    author_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    authorId: {
+    author_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

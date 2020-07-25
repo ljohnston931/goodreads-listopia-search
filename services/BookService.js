@@ -38,29 +38,27 @@ class BookService {
     const books = await Promise.all(
       queries.map((query) => this.findOrCreateBook(query))
     );
-    return books.map((book) => {
-      return {
-        bookId: book.bookId,
-        title: book.title,
-        author: {
-          name: book.authorName,
-          id: book.authorId,
-        },
-      };
-    });
+    return books;
   }
 
   async findOrCreateBook(query) {
     let book = await db.books.findOne({
       where: {
-        [Op.and]: [{ title: query.title }, { authorName: query.author }],
+        [Op.and]: [{ title: query.title }, { author_name: query.author }],
       },
     });
     if (!book) {
       book = await this.searchGoodreads(query);
       await db.books.create(book);
     }
-    return book;
+    return {
+      bookId: book.book_id,
+      title: book.title,
+      author: {
+        name: book.author_name,
+        id: book.author_id,
+      },
+    };
   }
 
   async searchGoodreads(query) {
@@ -83,10 +81,10 @@ class BookService {
     ).best_book;
 
     return {
-      bookId: goodreadsBook.id._text,
+      book_id: goodreadsBook.id._text,
       title: goodreadsBook.title._text,
-      authorName: goodreadsBook.author.name._text,
-      authorId: goodreadsBook.author.id._text,
+      author_name: goodreadsBook.author.name._text,
+      author_id: goodreadsBook.author.id._text,
     };
   }
 }

@@ -1,16 +1,14 @@
 module.exports = (sequelize, DataTypes) => {
   return sequelize.define("list", {
-    bookId: {
+    book_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    listHref: {
+    list_href: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
-    listTitle: {
+    list_title: {
       type: DataTypes.STRING,
-      allowNull: false,
     },
   });
 };
