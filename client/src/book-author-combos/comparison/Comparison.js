@@ -5,8 +5,8 @@ import "./comparison.css";
 
 const Comparison = (props) => {
   const [listsInCommon, setListsInCommon] = useState([]);
-  const [loading, setLoading] = useState(true);
-  let message = "";
+  const [loadingStartTime, setLoadingStartTime] = useState(null);
+  const [error, setError] = useState(false);
 
   const listToString = (list) => {
     if (list.length === 0) {
@@ -53,44 +53,30 @@ const Comparison = (props) => {
   };
 
   useEffect(() => {
-    setLoading(true);
+    setLoadingStartTime(new Date());
+    setError(false);
     setListsInCommon([]);
 
     getListsInCommon()
       .then((newListsInCommon) => {
-        if (newListsInCommon.length === 0) {
-          message = "No lists found";
-        } else {
-          message = "";
-        }
         setListsInCommon(newListsInCommon);
       })
       .catch((error) => {
-        message = "Error encountered (Contact Lucy)";
-      })
-      .then(() => {
-        setLoading(false);
+        setError(error);
       });
   }, [props.bookAuthorCombo]);
 
-  useEffect(() => {
-    if (loading) {
-      message = "Scraping from Goodreads ... ";
-
-      const interval = setInterval(() => {
-        //console.log(message, message + "\nStill scraping ...");
-        message += "\nStill scraping ...";
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [loading]);
-
+  console.log("render comparison");
   return (
     <section id="comparison">
       <div className="comparison-header">
         {createHeader(props.bookAuthorCombo)}
       </div>
-      <Message message={message} />
+      <Message
+        loadingStartTime={loadingStartTime}
+        error={error}
+        numOfResults={listsInCommon.length}
+      />
       <div className="results">
         {listsInCommon.map((list) => (
           <div key={list.href}>

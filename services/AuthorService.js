@@ -4,7 +4,7 @@ const _ = require("lodash");
 const { query } = require("express");
 require("dotenv").config();
 const db = require("../models/index");
-const { Op } = require("sequelize");
+const { Op, DatabaseError } = require("sequelize");
 
 class AuthorService {
   async getBooksByAuthor(authorId) {
@@ -37,13 +37,16 @@ class AuthorService {
     let page = 1;
 
     while (getAnotherPage) {
-      const resp = await http.get(`https://www.goodreads.com/author/list.xml`, {
-        params: {
-          key: process.env.GOODREADS_API_KEY,
-          id: authorId,
-          page: page,
-        },
-      });
+      const resp = await http.slow.get(
+        `https://www.goodreads.com/author/list.xml`,
+        {
+          params: {
+            key: process.env.GOODREADS_API_KEY,
+            id: authorId,
+            page: page,
+          },
+        }
+      );
       const json = convert.xml2json(resp.data, { compact: true, spaces: 2 });
       const results = JSON.parse(json).GoodreadsResponse.author.books;
       let books = results.book;
@@ -60,3 +63,22 @@ class AuthorService {
 }
 
 module.exports = AuthorService;
+
+// constructor(authorId)
+
+// areAuthorBooksInDatabase {
+//   return boolean
+// }
+
+// scrapePage(page){
+//   data = getData
+//   if page = 1 {
+//     data.totalPages = totalPages
+//   }
+//   return data
+// }
+
+// cacheAuthorBooks(books) {
+//   store in author books db
+//   store in books db
+// }

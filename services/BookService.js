@@ -5,7 +5,6 @@ const { query } = require("express");
 require("dotenv").config();
 const db = require("../models/index");
 const { Op } = require("sequelize");
-const axios = require("axios");
 
 class BookService {
   isSeries(item) {
@@ -14,7 +13,7 @@ class BookService {
     }
   }
   async search(query) {
-    const resp = await axios.get(
+    const resp = await http.fast.get(
       "https://www.googleapis.com/books/v1/volumes",
       {
         params: { q: query, printType: "books" },
@@ -67,12 +66,15 @@ class BookService {
   }
 
   async searchGoodreads(query) {
-    const resp = await http.get(`https://www.goodreads.com/search/index.xml`, {
-      params: {
-        key: process.env.GOODREADS_API_KEY,
-        q: `${query.title} ${query.author}`,
-      },
-    });
+    const resp = await http.slow.get(
+      `https://www.goodreads.com/search/index.xml`,
+      {
+        params: {
+          key: process.env.GOODREADS_API_KEY,
+          q: `${query.title} ${query.author}`,
+        },
+      }
+    );
 
     const json = convert.xml2json(resp.data, { compact: true, spaces: 2 });
     let results = JSON.parse(json).GoodreadsResponse.search.results.work;
@@ -101,3 +103,17 @@ class BookService {
 }
 
 module.exports = BookService;
+
+// constructor(title, author) {
+//   getBookId() {
+//     getBookIdFromDB()
+//     if not there {
+//       getBookIdFromGoodreads()
+//       cacheBook()
+//     }
+//   }
+
+//   getBookIdFromDB()
+
+//   cacheBook()
+// }

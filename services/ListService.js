@@ -1,3 +1,4 @@
+//will delete this file
 const http = require("../http");
 const _ = require("lodash");
 const cheerio = require("cheerio");
@@ -75,7 +76,7 @@ class ListService {
   }
 
   async getListsForBookFromGoodreads(bookId) {
-    const firstPageResp = await http.get(
+    const firstPageResp = await http.medium.get(
       `https://www.goodreads.com/list/book/${bookId}`
     );
 
@@ -93,7 +94,7 @@ class ListService {
     const totalPages = parser.getTotalPages();
     const otherPages = _.range(2, totalPages + 1, 1);
     const otherPagesPromises = otherPages.map(async (pageNumber) =>
-      http.get(
+      http.medium.get(
         `https://www.goodreads.com/list/book/${bookId}?page=${pageNumber}`
       )
     );
