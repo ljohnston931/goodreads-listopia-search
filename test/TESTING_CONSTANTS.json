@@ -1,4 +1,5 @@
 {
-  "BOOK_ID_WITH_NO_LISTS": 34001885,
-  "BOOK_ID_WITH_MANY_LISTS": 6759
+    "BOOK_ID_WITH_NO_LISTS": 34001885,
+    "BOOK_ID_WITH_MANY_LISTS": 6759,
+    "BOOK_LISTS": [{ "list_title": "example title", "list_href": "example_href" }]
 }
