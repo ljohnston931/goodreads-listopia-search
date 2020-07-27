@@ -54,7 +54,8 @@ class ListSThatIncludeBookService {
         const parser = new HtmlParser(resp.data)
         let lists = parser.getListsOnPage()
         let totalPages = null
-        if (page === 1) {
+        if (page == 1) {
+            console.log('page', page)
             totalPages = parser.getTotalPages()
         }
         return {
