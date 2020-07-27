@@ -40,7 +40,7 @@ class ListSThatIncludeBookService {
         this.bookId = bookId
     }
 
-    async areBookListsInDatabase() {
+    async areBookListsCached() {
         const bookLists = await db.lists.findOne({
             where: { book_id: this.bookId },
         })

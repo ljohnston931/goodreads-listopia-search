@@ -1,14 +1,22 @@
-const express = require("express");
-const bookController = require("./controllers/bookController");
-const listController = require("./controllers/listController");
+const express = require('express')
+const bookController = require('./controllers/bookController')
+const listController = require('./controllers/listController')
+const listsThatIncludeBookController = require('./controllers/listsThatIncludeBookController')
 
-const router = express.Router();
+const router = express.Router()
 
-router.get("/books", bookController.search);
-router.post("/books", bookController.getGoodreadsBooks);
-router.post("/lists/in-common", listController.getListsInCommon);
+router.get('/books', bookController.search)
+router.post('/books', bookController.getGoodreadsBooks)
+router.post('/lists/in-common', listController.getListsInCommon)
 
-module.exports = router;
+router.get('/cache/lists/:bookId', listsThatIncludeBookController.areBookListsCached)
+router.get(
+    '/goodreads/lists/:bookId/pages/:page',
+    listsThatIncludeBookController.scrapeBookListsPage
+)
+router.post('/cache/lists/:bookId', listsThatIncludeBookController.cacheBookLists)
+
+module.exports = router
 
 // get     /cache/authorBooks         authorController.areAuthorBooksInDatabase()
 // get     /goodreads/authorBooks     authorController.scrapePage()
@@ -18,7 +26,4 @@ module.exports = router;
 // get     /goodreads/listContents     listContentsController.scrapePage()
 // post    /goodreads/listContents     listContentsController.cacheListContent()
 // get     /listsInCommon              listsInCommonController.getListsInCommon()
-// get     /cache/lists                listsThatIncludeBookController.areBookListsInDatabase()
-// get     /goodreads/lists            listsThatIncludeBookController.scrapeBookListsPage()
-// post    /cache/lists                listsThatIncludeBookController.cacheBookLists()
 // get     /books                      searchController.search()

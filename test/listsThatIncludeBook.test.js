@@ -5,7 +5,7 @@ const ListsThatIncludeBookService = require('../services/ListsThatIncludeBookSer
 const db = require('../models/index')
 
 describe('ListsThatIncludeBookService', () => {
-    describe('#areBooksListsInDatabase', () => {
+    describe('#areBookListsCached', () => {
         afterEach(async () => {
             await db.lists.destroy({
                 where: { book_id: CONSTANTS.BOOK_ID_WITH_NO_LISTS },
@@ -18,12 +18,12 @@ describe('ListsThatIncludeBookService', () => {
                 list_href: null,
             })
             const serviceInstance = new ListsThatIncludeBookService(CONSTANTS.BOOK_ID_WITH_NO_LISTS)
-            const res = await serviceInstance.areBookListsInDatabase()
+            const res = await serviceInstance.areBookListsCached()
             expect(res).to.be.true
         })
         it('should return false if book lists are not loaded in database', async () => {
             const serviceInstance = new ListsThatIncludeBookService(CONSTANTS.BOOK_ID_WITH_NO_LISTS)
-            const res = await serviceInstance.areBookListsInDatabase()
+            const res = await serviceInstance.areBookListsCached()
             expect(res).to.be.false
         })
     })
