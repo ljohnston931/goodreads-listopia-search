@@ -27,7 +27,6 @@ const App = () => {
         <div className='App'>
             <Header />
             <Search setQueryBooks={setQueryBooks} />
-            <BookProgress bookId={6759} />
             <BookAuthorCombos queryBooks={queryBooks} />
         </div>
     )

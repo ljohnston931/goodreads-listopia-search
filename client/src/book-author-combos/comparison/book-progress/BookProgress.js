@@ -5,8 +5,19 @@ import './book-progress.css'
 
 const BookProgress = props => {
     const [pagesScraped, setPagesScraped] = useState(0)
-    const [totalPages, setTotalPages] = useState(1)
+    const [totalPages, setTotalPages] = useState(-1)
     const [bookLists, setBookLists] = useState([])
+
+    const checkDatabaseAndScrapeFirstPage = async () => {
+        const resp = await axios.get(`/api/cache/lists/${props.bookId}`)
+        const inDatabase = resp.data
+        if (inDatabase) {
+            setPagesScraped(-1)
+            //props.done()
+        } else {
+            scrapeFirstPageFromGoodreads()
+        }
+    }
 
     const scrapeFirstPageFromGoodreads = async () => {
         const firstPageResp = await axios.get(`/api/goodreads/lists/${props.bookId}/pages/${1}`)
@@ -23,29 +34,28 @@ const BookProgress = props => {
         setPagesScraped(pagesScraped + 1)
     }
 
+    const cacheLists = async () => {
+        await axios.post(`/api/cache/lists`, { params: bookLists })
+        console.log('cached!')
+        //done
+    }
+
     useEffect(() => {
-        const inDatabase = false
-        if (inDatabase) {
-            setPagesScraped(1)
-            //props.done()
-        } else {
-            scrapeFirstPageFromGoodreads()
-        }
+        checkDatabaseAndScrapeFirstPage()
     }, [])
 
     useEffect(() => {
+        console.log('checking')
         if (pagesScraped && pagesScraped < totalPages) {
             scrapeAnotherPageFromGoodreads()
+        } else if (pagesScraped && pagesScraped != -1) {
+            cacheLists()
         }
-        // else {
-        //     await axios.post(`/api/cache/lists`, { params: lists })
-        //     done
-        // }
     }, [pagesScraped])
 
     return (
         <div>
-            <span>Retrieving lists for {props.bookId}</span>
+            <span>Retrieving lists for {props.title}</span>
             <Line
                 percent={(pagesScraped / totalPages) * 100}
                 strokeWidth='10'
