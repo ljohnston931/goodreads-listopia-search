@@ -8,7 +8,9 @@ import { Status } from '../../CONSTANTS'
 const Comparison = React.memo(props => {
     const [listsInCommon, setListsInCommon] = useState([])
     const [error, setError] = useState(false)
-    const [loadingProgress, setLoadingProgress] = useState(new Array(props.bookAuthorCombo.length))
+    let defaultLoadingProgress = new Array(props.bookAuthorCombo.length)
+    defaultLoadingProgress.fill(Status.Loading)
+    const [loadingProgress, setLoadingProgress] = useState(defaultLoadingProgress)
 
     const listToString = list => {
         if (list.length === 0) {
@@ -70,7 +72,6 @@ const Comparison = React.memo(props => {
                 }
             })
         } catch (error) {
-            debugger
             setError(true)
         }
     }
@@ -82,15 +83,18 @@ const Comparison = React.memo(props => {
 
     useEffect(() => {
         if (loadingProgress.includes(Status.Error)) {
-            setError(error)
-        } else if (loadingProgress.every(status => status === Status.Loaded)) {
+            setError(true)
+        } else if (
+            loadingProgress.length &&
+            loadingProgress.every(status => status === Status.Loaded)
+        ) {
             getListsInCommon()
                 .then(newListsInCommon => {
                     setListsInCommon(newListsInCommon)
                 })
                 .catch(error => {
                     console.log(error)
-                    setError(error)
+                    setError(true)
                 })
         }
     }, [loadingProgress])

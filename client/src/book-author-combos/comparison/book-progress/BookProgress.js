@@ -15,9 +15,11 @@ const BookProgress = props => {
         const resp = await axios.get(`/api/cache/lists/${props.bookId}`)
         const inDatabase = resp.data
         if (inDatabase) {
+            console.log('in database')
             setPagesScraped(-1)
             props.onFinish(Status.Loaded)
         } else {
+            console.log('not it database')
             scrapeFirstPageFromGoodreads()
         }
     }
@@ -44,26 +46,26 @@ const BookProgress = props => {
         props.onFinish(Status.Loaded)
     }
 
+    const handlePagesScrapedChange = async () => {
+        if (pagesScraped && pagesScraped < totalPages) {
+            await scrapeAnotherPageFromGoodreads()
+        } else if (pagesScraped && pagesScraped != -1) {
+            await cacheLists()
+        }
+    }
+
     useEffect(() => {
-        try {
-            checkDatabaseAndScrapeFirstPage()
-        } catch (error) {
+        checkDatabaseAndScrapeFirstPage().catch(error => {
             console.log(error)
             props.onFinish(Status.Error)
-        }
+        })
     }, [])
 
     useEffect(() => {
-        try {
-            if (pagesScraped && pagesScraped < totalPages) {
-                scrapeAnotherPageFromGoodreads()
-            } else if (pagesScraped && pagesScraped != -1) {
-                cacheLists()
-            }
-        } catch (error) {
+        handlePagesScrapedChange().catch(error => {
             console.log(error)
             props.onFinish(Status.Error)
-        }
+        })
     }, [pagesScraped])
 
     return (

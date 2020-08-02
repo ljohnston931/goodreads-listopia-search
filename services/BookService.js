@@ -46,7 +46,10 @@ class BookService {
         })
         if (!book) {
             book = await this.searchGoodreads(query)
-            await db.books.create(book)
+            await db.books.findOrCreate({
+                where: { book_id: book.book_id },
+                defaults: book,
+            })
         }
         return {
             bookId: book.book_id,
