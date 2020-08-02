@@ -6,16 +6,16 @@ exports.getListsInCommon = async (req, res) => {
 
     if (!bookIds && !authorIds) {
         res.status(400).send('bookIds or authorIds required')
-    }
+    } else {
+        bookIds = bookIds || []
+        authorIds = authorIds || []
 
-    bookIds = bookIds || []
-    authorIds = authorIds || []
-
-    try {
-        const listsInCommon = await ListServiceInstance.getListsInCommon(bookIds, authorIds)
-        res.send(listsInCommon)
-    } catch (error) {
-        console.log(error)
-        res.status(500).send(error)
+        try {
+            const listsInCommon = await ListServiceInstance.getListsInCommon(bookIds, authorIds)
+            res.send(listsInCommon)
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error)
+        }
     }
 }

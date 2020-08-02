@@ -41,7 +41,7 @@ const BookProgress = props => {
     }
 
     const cacheLists = async () => {
-        await axios.post(`/api/cache/lists`, { params: bookLists })
+        await axios.post(`/api/cache/lists/${props.bookId}`, { bookLists })
         console.log('cached!')
         props.onFinish(Status.Loaded)
     }
