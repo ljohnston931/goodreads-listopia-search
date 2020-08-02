@@ -1,19 +1,22 @@
 import { Line } from 'rc-progress'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import { Status } from '../../../CONSTANTS'
+import _ from 'lodash'
 import './book-progress.css'
 
 const BookProgress = props => {
     const [pagesScraped, setPagesScraped] = useState(0)
     const [totalPages, setTotalPages] = useState(-1)
     const [bookLists, setBookLists] = useState([])
+    const BATCH_SIZE = 1
 
     const checkDatabaseAndScrapeFirstPage = async () => {
         const resp = await axios.get(`/api/cache/lists/${props.bookId}`)
         const inDatabase = resp.data
         if (inDatabase) {
             setPagesScraped(-1)
-            //props.done()
+            props.onFinish(Status.Loaded)
         } else {
             scrapeFirstPageFromGoodreads()
         }
@@ -27,29 +30,39 @@ const BookProgress = props => {
     }
 
     const scrapeAnotherPageFromGoodreads = async () => {
-        const pageResp = await axios.get(
-            `/api/goodreads/lists/${props.bookId}/pages/${pagesScraped + 1}`
+        const pages = _.range(pagesScraped + 1, pagesScraped + 1 + BATCH_SIZE)
+        const pageResps = await Promise.all(
+            pages.map(page => axios.get(`/api/goodreads/lists/${props.bookId}/pages/${page}`))
         )
-        setBookLists(bookLists.concat(pageResp.data.lists))
-        setPagesScraped(pagesScraped + 1)
+        setBookLists(bookLists.concat(pageResps.flatMap(pageResp => pageResp.data.lists)))
+        setPagesScraped(pagesScraped + BATCH_SIZE)
     }
 
     const cacheLists = async () => {
         await axios.post(`/api/cache/lists`, { params: bookLists })
         console.log('cached!')
-        //done
+        props.onFinish(Status.Loaded)
     }
 
     useEffect(() => {
-        checkDatabaseAndScrapeFirstPage()
+        try {
+            checkDatabaseAndScrapeFirstPage()
+        } catch (error) {
+            console.log(error)
+            props.onFinish(Status.Error)
+        }
     }, [])
 
     useEffect(() => {
-        console.log('checking')
-        if (pagesScraped && pagesScraped < totalPages) {
-            scrapeAnotherPageFromGoodreads()
-        } else if (pagesScraped && pagesScraped != -1) {
-            cacheLists()
+        try {
+            if (pagesScraped && pagesScraped < totalPages) {
+                scrapeAnotherPageFromGoodreads()
+            } else if (pagesScraped && pagesScraped != -1) {
+                cacheLists()
+            }
+        } catch (error) {
+            console.log(error)
+            props.onFinish(Status.Error)
         }
     }, [pagesScraped])
 

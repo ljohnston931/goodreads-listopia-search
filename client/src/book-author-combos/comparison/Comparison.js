@@ -3,12 +3,12 @@ import axios from 'axios'
 import Message from './Message'
 import './comparison.css'
 import BookProgress from './book-progress/BookProgress'
+import { Status } from '../../CONSTANTS'
 
-const Comparison = props => {
+const Comparison = React.memo(props => {
     const [listsInCommon, setListsInCommon] = useState([])
-    const [loadingStartTime, setLoadingStartTime] = useState(null)
     const [error, setError] = useState(false)
-    const [loaded, setLoaded] = useState(new Array(props.bookAuthorCombo.length))
+    const [loadingProgress, setLoadingProgress] = useState(new Array(props.bookAuthorCombo.length))
 
     const listToString = list => {
         if (list.length === 0) {
@@ -46,31 +46,55 @@ const Comparison = props => {
         return resp.data
     }
 
+    const createOnFinish = index => {
+        return status => {
+            let newLoadingProgress = [...loadingProgress]
+            newLoadingProgress[index] = status
+            setLoadingProgress(newLoadingProgress)
+        }
+    }
+
     const createBookProgressComponents = () => {
-        return props.bookAuthorCombo.map(combo => {
-            if (combo.bookId) {
-                return <BookProgress title={combo.title} bookId={combo.bookId} />
-            } else {
-                return null
-            }
-        })
+        try {
+            return props.bookAuthorCombo.map((combo, comboIndex) => {
+                if (combo.bookId) {
+                    return (
+                        <BookProgress
+                            title={combo.title}
+                            bookId={combo.bookId}
+                            onFinish={createOnFinish(comboIndex)}
+                        />
+                    )
+                } else {
+                    return null
+                }
+            })
+        } catch (error) {
+            debugger
+            setError(true)
+        }
     }
 
     useEffect(() => {
-        setLoadingStartTime(new Date())
         setError(false)
         setListsInCommon([])
+    }, [props.bookAuthorCombos])
 
-        getListsInCommon()
-            .then(newListsInCommon => {
-                setListsInCommon(newListsInCommon)
-            })
-            .catch(error => {
-                setError(error)
-            })
-    }, [props.bookAuthorCombo])
+    useEffect(() => {
+        if (loadingProgress.includes(Status.Error)) {
+            setError(error)
+        } else if (loadingProgress.every(status => status === Status.Loaded)) {
+            getListsInCommon()
+                .then(newListsInCommon => {
+                    setListsInCommon(newListsInCommon)
+                })
+                .catch(error => {
+                    console.log(error)
+                    setError(error)
+                })
+        }
+    }, [loadingProgress])
 
-    console.log('render comparison')
     return (
         <section id='comparison'>
             <div className='comparison-header'>{createHeader(props.bookAuthorCombo)}</div>
@@ -94,6 +118,6 @@ const Comparison = props => {
             </div>
         </section>
     )
-}
+})
 
 export default Comparison
