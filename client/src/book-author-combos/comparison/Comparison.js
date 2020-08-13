@@ -4,13 +4,12 @@ import Message from './Message'
 import './comparison.css'
 import BookProgress from './book-progress/BookProgress'
 import { Status } from '../../CONSTANTS'
+import { load } from 'cheerio'
 
 const Comparison = React.memo(props => {
     const [listsInCommon, setListsInCommon] = useState([])
     const [error, setError] = useState(false)
-    let defaultLoadingProgress = new Array(props.bookAuthorCombo.length)
-    defaultLoadingProgress.fill(Status.Loading)
-    const [loadingProgress, setLoadingProgress] = useState(defaultLoadingProgress)
+    const [loadedCombosCount, setLoadedCombosCount] = useState(0)
 
     const listToString = list => {
         if (list.length === 0) {
@@ -48,11 +47,11 @@ const Comparison = React.memo(props => {
         return resp.data
     }
 
-    const createOnFinish = index => {
-        return status => {
-            let newLoadingProgress = [...loadingProgress]
-            newLoadingProgress[index] = status
-            setLoadingProgress(newLoadingProgress)
+    const onFinish = status => {
+        if (status === Status.Error) {
+            setError(true)
+        } else if (status === Status.Loaded) {
+            setLoadedCombosCount(prevCount => prevCount + 1)
         }
     }
 
@@ -64,7 +63,7 @@ const Comparison = React.memo(props => {
                         <BookProgress
                             title={combo.title}
                             bookId={combo.bookId}
-                            onFinish={createOnFinish(comboIndex)}
+                            onFinish={onFinish}
                         />
                     )
                 } else {
@@ -82,14 +81,11 @@ const Comparison = React.memo(props => {
     }, [props.bookAuthorCombos])
 
     useEffect(() => {
-        if (loadingProgress.includes(Status.Error)) {
-            setError(true)
-        } else if (
-            loadingProgress.length &&
-            loadingProgress.every(status => status === Status.Loaded)
-        ) {
+        if (!error && loadedCombosCount === props.bookAuthorCombo.length) {
             getListsInCommon()
                 .then(newListsInCommon => {
+                    console.log(newListsInCommon)
+                    debugger
                     setListsInCommon(newListsInCommon)
                 })
                 .catch(error => {
@@ -97,7 +93,7 @@ const Comparison = React.memo(props => {
                     setError(true)
                 })
         }
-    }, [loadingProgress])
+    }, [loadedCombosCount])
 
     return (
         <section id='comparison'>
