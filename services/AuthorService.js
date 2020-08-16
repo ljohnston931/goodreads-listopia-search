@@ -9,6 +9,12 @@ class AuthorService {
         this.authorId = authorId
     }
 
+    async getBooks() {
+        const authorBooks = await db.author_books.findAll({
+            where: { author_id: this.authorId },
+        })
+    }
+
     async areAuthorBooksCached() {
         const authorBooks = await db.author_books.findOne({
             where: { author_id: this.authorId },
