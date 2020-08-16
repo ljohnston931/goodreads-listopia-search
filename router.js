@@ -16,9 +16,10 @@ router.get(
 )
 router.post('/cache/lists/:bookId', listsThatIncludeBookController.cacheBookLists)
 
+//router.get('/cache/authorBooks', authorController.areAuthorBooksCached())
+
 module.exports = router
 
-// get     /cache/authorBooks         authorController.areAuthorBooksInDatabase()
 // get     /goodreads/authorBooks     authorController.scrapePage()
 // post    /cache/authorBooks          authorController.cacheAuthorBooks()
 // get     /bookIds                    bookController.getBookId()
