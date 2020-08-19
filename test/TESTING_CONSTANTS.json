@@ -4,6 +4,5 @@
     "BOOK_LISTS": [{ "list_title": "example title", "list_href": "example_href" }],
     "AUTHOR_ID_WITH_NO_BOOKS": 234,
     "AUTHOR_ID_WITH_FEW_BOOKS": 3162228,
-    "AUTHOR_ID_WITH_MANY_BOOKS": 11562,
-    "AUTHOR_BOOKS": [12345]
+    "AUTHOR_ID_WITH_MANY_BOOKS": 11562
 }

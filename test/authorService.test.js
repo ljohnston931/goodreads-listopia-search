@@ -5,17 +5,13 @@ const AuthorService = require('../services/AuthorService')
 const db = require('../models/index')
 
 describe('AuthorService', () => {
-    it.only('temp', async () => {
-        const serviceInstance = new AuthorService(CONSTANTS.AUTHOR_ID_WITH_FEW_BOOKS)
-        const res = await serviceInstance.getBooks()
-    })
-
     describe('#getBooks', () => {
         beforeEach(async () => {
             await db.author_books.destroy({
                 where: {
                     author_id: [
                         CONSTANTS.AUTHOR_ID_WITH_NO_BOOKS,
+                        CONSTANTS.AUTHOR_ID_WITH_FEW_BOOKS,
                         CONSTANTS.AUTHOR_ID_WITH_MANY_BOOKS,
                     ],
                 },
@@ -26,6 +22,7 @@ describe('AuthorService', () => {
                 where: {
                     author_id: [
                         CONSTANTS.AUTHOR_ID_WITH_NO_BOOKS,
+                        CONSTANTS.AUTHOR_ID_WITH_FEW_BOOKS,
                         CONSTANTS.AUTHOR_ID_WITH_MANY_BOOKS,
                     ],
                 },
@@ -49,7 +46,7 @@ describe('AuthorService', () => {
             expect(res.length).to.equal(30)
             expect(res[29].bookId).to.not.be.null
             expect(res[29].bookTitle).to.not.be.null
-        })
+        }).timeout(3000)
 
         it('should return cached data', async () => {
             const serviceInstance = new AuthorService(CONSTANTS.AUTHOR_ID_WITH_FEW_BOOKS)

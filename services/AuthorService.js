@@ -10,16 +10,60 @@ class AuthorService {
     }
 
     async getBooks() {
-        const authorBooks = await db.author_books.findAll({
-            where: { author_id: this.authorId },
+        const bookIds = await this.getBooksByAuthorFromDatabase()
+
+        let books
+
+        if (bookIds.length) {
+            books = await this.getBooksFromDatabase(bookIds)
+        } else {
+            books = await this.cacheBooksFromGoodreads()
+        }
+
+        return books.map(book => {
+            return {
+                title: book.title,
+                bookId: book.book_id,
+            }
         })
     }
 
-    async areAuthorBooksCached() {
-        const authorBooks = await db.author_books.findOne({
-            where: { author_id: this.authorId },
+    async cacheBooksFromGoodreads() {
+        const resp = await http.slow.get(`https://www.goodreads.com/author/list.xml`, {
+            params: {
+                key: process.env.GOODREADS_API_KEY,
+                id: this.authorId,
+                page: 1,
+            },
         })
-        return authorBooks !== null
+        const json = convert.xml2json(resp.data, { compact: true, spaces: 2 })
+        const res = JSON.parse(json).GoodreadsResponse
+        const results = JSON.parse(json).GoodreadsResponse.author.books
+        let books = res.author.books.book
+        if (!(books instanceof Array)) {
+            books = [books]
+        }
+        const authorName = res.author.name._text
+        const booksForDatabase = books.map(book => {
+            return {
+                book_id: book.id._text,
+                title: book.title._text,
+                author_id: this.authorId,
+                author_name: authorName,
+            }
+        })
+        const authorBooksForDatabase = books.map(book => {
+            return {
+                author_id: this.authorId,
+                book_id: book.id._text,
+            }
+        })
+        await db.books.bulkCreate(booksForDatabase, {
+            ignoreDuplicates: true,
+        })
+        await db.author_books.bulkCreate(authorBooksForDatabase)
+
+        return booksForDatabase
     }
 
     async getBooksByAuthor(authorId) {
@@ -38,12 +82,20 @@ class AuthorService {
         return bookIds
     }
 
-    async getBooksByAuthorFromDatabase(authorId) {
+    async getBooksFromDatabase(bookIds) {
+        const results = await db.books.findAll({
+            attributes: ['book_id', 'title'],
+            where: { book_id: bookIds },
+        })
+        return results.map(result => result.dataValues)
+    }
+
+    async getBooksByAuthorFromDatabase() {
         const results = await db.author_books.findAll({
             attributes: ['book_id'],
-            where: { author_id: authorId },
+            where: { author_id: this.authorId },
         })
-        return results.map(results => results.dataValues.book_id)
+        return results.map(result => result.dataValues.book_id)
     }
 
     async getBooksByAuthorFromGoodreads(authorId) {
@@ -75,22 +127,3 @@ class AuthorService {
 }
 
 module.exports = AuthorService
-
-// constructor(authorId)
-
-// areAuthorBooksInDatabase {
-//   return boolean
-// }
-
-// scrapePage(page){
-//   data = getData
-//   if page = 1 {
-//     data.totalPages = totalPages
-//   }
-//   return data
-// }
-
-// cacheAuthorBooks(books) {
-//   store in author books db
-//   store in books db
-// }
