@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
-import Message from './Message'
 import './comparison.css'
 import BookProgress from './book-progress/BookProgress'
+import AuthorProgress from './author-progress/AuthorProgress'
 import { Status } from '../../CONSTANTS'
-import { load } from 'cheerio'
 
 const Comparison = React.memo(props => {
     const [listsInCommon, setListsInCommon] = useState([])
@@ -57,12 +56,20 @@ const Comparison = React.memo(props => {
 
     const createBookProgressComponents = () => {
         try {
-            return props.bookAuthorCombo.map((combo, comboIndex) => {
+            return props.bookAuthorCombo.map(combo => {
                 if (combo.bookId) {
                     return (
                         <BookProgress
                             title={combo.title}
                             bookId={combo.bookId}
+                            onFinish={onFinish}
+                        />
+                    )
+                } else if (combo.authorId) {
+                    return (
+                        <AuthorProgress
+                            authorName={combo.authorName}
+                            authorId={combo.authorId}
                             onFinish={onFinish}
                         />
                     )
@@ -84,12 +91,9 @@ const Comparison = React.memo(props => {
         if (!error && loadedCombosCount === props.bookAuthorCombo.length) {
             getListsInCommon()
                 .then(newListsInCommon => {
-                    console.log(newListsInCommon)
-                    debugger
                     setListsInCommon(newListsInCommon)
                 })
                 .catch(error => {
-                    console.log(error)
                     setError(true)
                 })
         }
@@ -98,11 +102,6 @@ const Comparison = React.memo(props => {
     return (
         <section id='comparison'>
             <div className='comparison-header'>{createHeader(props.bookAuthorCombo)}</div>
-            {/* <Message
-                loadingStartTime={loadingStartTime}
-                error={error}
-                numOfResults={listsInCommon.length}
-            /> */}
             {error ? <div>Error</div> : createBookProgressComponents()}
             <div className='results'>
                 {listsInCommon.map(list => (

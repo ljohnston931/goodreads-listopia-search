@@ -26,9 +26,13 @@ const BookProgress = props => {
 
     const scrapeFirstPageFromGoodreads = async () => {
         const firstPageResp = await axios.get(`/api/goodreads/lists/${props.bookId}/pages/${1}`)
-        setBookLists(firstPageResp.data.lists)
-        setTotalPages(firstPageResp.data.totalPages)
         setPagesScraped(1)
+        if (firstPageResp.data.lists.length === 0) {
+            setTotalPages(1)
+        } else {
+            setBookLists(firstPageResp.data.lists)
+            setTotalPages(firstPageResp.data.totalPages)
+        }
     }
 
     const scrapeAnotherPageFromGoodreads = async () => {
@@ -49,7 +53,7 @@ const BookProgress = props => {
     const handlePagesScrapedChange = async () => {
         if (pagesScraped && pagesScraped < totalPages) {
             await scrapeAnotherPageFromGoodreads()
-        } else if (pagesScraped && pagesScraped != -1) {
+        } else if (pagesScraped && pagesScraped !== -1) {
             await cacheLists()
         }
     }

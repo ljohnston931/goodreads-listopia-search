@@ -12,6 +12,6 @@ db.author_books = require('./author_book')(sequelize, DataTypes)
 db.books = require('./book')(sequelize, DataTypes)
 db.lists = require('./list')(sequelize, DataTypes)
 
-db.sequelize.sync()
+db.sequelize.sync({ force: true })
 
 module.exports = db

@@ -121,7 +121,8 @@ class ListService {
     }
 
     async getListsForAuthor(authorId) {
-        const bookIds = await AuthorServiceInstance.getBooksByAuthor(authorId)
+        const authorService = new AuthorService(authorId)
+        const bookIds = await authorService.getBooksByAuthorFromDatabase()
         const bookListsFromDatabase = await db.lists.findAll({
             attributes: ['book_id', 'list_title', 'list_href'],
             where: { book_id: bookIds },

@@ -66,21 +66,21 @@ class AuthorService {
         return booksForDatabase
     }
 
-    async getBooksByAuthor(authorId) {
-        let bookIds = await this.getBooksByAuthorFromDatabase(authorId)
-        if (!bookIds.length) {
-            bookIds = await this.getBooksByAuthorFromGoodreads(authorId)
-            await db.author_books.bulkCreate(
-                bookIds.map(bookId => {
-                    return {
-                        author_id: authorId,
-                        book_id: bookId,
-                    }
-                })
-            )
-        }
-        return bookIds
-    }
+    // async getBooksByAuthor(authorId) {
+    //     let bookIds = await this.getBooksByAuthorFromDatabase(authorId)
+    //     if (!bookIds.length) {
+    //         bookIds = await this.getBooksByAuthorFromGoodreads(authorId)
+    //         await db.author_books.bulkCreate(
+    //             bookIds.map(bookId => {
+    //                 return {
+    //                     author_id: authorId,
+    //                     book_id: bookId,
+    //                 }
+    //             })
+    //         )
+    //     }
+    //     return bookIds
+    // }
 
     async getBooksFromDatabase(bookIds) {
         const results = await db.books.findAll({
@@ -98,32 +98,32 @@ class AuthorService {
         return results.map(result => result.dataValues.book_id)
     }
 
-    async getBooksByAuthorFromGoodreads(authorId) {
-        let bookIds = []
-        let getAnotherPage = true
-        let page = 1
+    // async getBooksByAuthorFromGoodreads(authorId) {
+    //     let bookIds = []
+    //     let getAnotherPage = true
+    //     let page = 1
 
-        while (getAnotherPage) {
-            const resp = await http.slow.get(`https://www.goodreads.com/author/list.xml`, {
-                params: {
-                    key: process.env.GOODREADS_API_KEY,
-                    id: authorId,
-                    page: page,
-                },
-            })
-            const json = convert.xml2json(resp.data, { compact: true, spaces: 2 })
-            const results = JSON.parse(json).GoodreadsResponse.author.books
-            let books = results.book
-            if (!(books instanceof Array)) {
-                books = [books]
-            }
-            bookIds = bookIds.concat(books.map(book => book.id._text))
-            getAnotherPage = results._attributes.end !== results._attributes.total
-            page++
-        }
+    //     while (getAnotherPage) {
+    //         const resp = await http.slow.get(`https://www.goodreads.com/author/list.xml`, {
+    //             params: {
+    //                 key: process.env.GOODREADS_API_KEY,
+    //                 id: authorId,
+    //                 page: page,
+    //             },
+    //         })
+    //         const json = convert.xml2json(resp.data, { compact: true, spaces: 2 })
+    //         const results = JSON.parse(json).GoodreadsResponse.author.books
+    //         let books = results.book
+    //         if (!(books instanceof Array)) {
+    //             books = [books]
+    //         }
+    //         bookIds = bookIds.concat(books.map(book => book.id._text))
+    //         getAnotherPage = results._attributes.end !== results._attributes.total
+    //         page++
+    //     }
 
-        return bookIds
-    }
+    //     return bookIds
+    // }
 }
 
 module.exports = AuthorService

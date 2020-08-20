@@ -2,6 +2,7 @@ const express = require('express')
 const bookController = require('./controllers/bookController')
 const listController = require('./controllers/listController')
 const listsThatIncludeBookController = require('./controllers/listsThatIncludeBookController')
+const authorController = require('./controllers/authorController')
 
 const router = express.Router()
 
@@ -16,7 +17,7 @@ router.get(
 )
 router.post('/cache/lists/:bookId', listsThatIncludeBookController.cacheBookLists)
 
-//router.get('/cache/authorBooks', authorController.getBooks())
+router.get('/cache/authors/:authorId/books', authorController.getBooks)
 
 module.exports = router
 
