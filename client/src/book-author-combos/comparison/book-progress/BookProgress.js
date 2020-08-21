@@ -9,7 +9,6 @@ const BookProgress = props => {
     const [pagesScraped, setPagesScraped] = useState(0)
     const [totalPages, setTotalPages] = useState(-1)
     const [bookLists, setBookLists] = useState([])
-    const [bookHasNoLists, setBookHasNoLists] = useState(false)
     const [bookListsAreCached, setBookListsAreCached] = useState(false)
     const BATCH_SIZE = 1
 
@@ -21,6 +20,7 @@ const BookProgress = props => {
             setPagesScraped(-1)
             setBookListsAreCached(true)
             props.onFinish(Status.Loaded)
+            console.log('finish', props.title)
         } else {
             console.log('not in database')
             scrapeFirstPageFromGoodreads()
@@ -28,11 +28,12 @@ const BookProgress = props => {
     }
 
     const scrapeFirstPageFromGoodreads = async () => {
+        console.log(props.title)
         const firstPageResp = await axios.get(`/api/goodreads/lists/${props.bookId}/pages/${1}`)
-        if (firstPageResp.data.totalPages === 0) {
+        if (firstPageResp.data.totalPages <= 1) {
             setTotalPages(1)
             setPagesScraped(1)
-            cacheLists([])
+            cacheLists(firstPageResp.data.lists)
         } else {
             setBookLists(firstPageResp.data.lists)
             setTotalPages(firstPageResp.data.totalPages)
@@ -58,7 +59,7 @@ const BookProgress = props => {
 
     const cacheLists = async lists => {
         await axios.post(`/api/cache/lists/${props.bookId}`, { bookLists: lists })
-        console.log('cached!')
+        console.log('cached!', props.title)
         props.onFinish(Status.Loaded)
     }
 

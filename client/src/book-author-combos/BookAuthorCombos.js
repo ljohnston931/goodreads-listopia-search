@@ -22,7 +22,7 @@ const BookAuthorCombos = props => {
             } else {
                 combos = [[bookInfo], [authorInfo]]
             }
-            return [combos[0]]
+            return combos
         }, [])
 
     return (

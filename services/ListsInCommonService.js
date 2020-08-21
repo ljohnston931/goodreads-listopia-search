@@ -13,8 +13,6 @@ class ListsInCommonService {
             this.getBookLists(this.bookIds),
             this.getAuthorLists(this.authorIds),
         ])
-        console.log('bookLists', bookLists)
-        console.log('authorLists', authorLists)
         const arraysToCompare = bookLists
             .map(bookList => bookList.lists)
             .concat(authorLists.map(authorList => authorList.lists))
