@@ -29,7 +29,7 @@ const AuthorProgress = props => {
             props.onFinish(Status.Loaded)
         }
     }, [loadedBooksCount])
-    console.log('author books', authorBooks)
+
     return (
         <div>
             {authorBooks.length === 0 && <div>Retrieving books for {props.authorName}</div>}

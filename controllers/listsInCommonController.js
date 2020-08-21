@@ -1,5 +1,5 @@
 const ListService = require('../services/ListService')
-const ListServiceInstance = new ListService()
+const ListsInCommonService = require('../services/ListsInCommonService')
 
 exports.getListsInCommon = async (req, res) => {
     let { bookIds, authorIds } = req.body
@@ -11,7 +11,8 @@ exports.getListsInCommon = async (req, res) => {
         authorIds = authorIds || []
 
         try {
-            const listsInCommon = await ListServiceInstance.getListsInCommon(bookIds, authorIds)
+            const listsInCommonService = new ListsInCommonService(bookIds, authorIds)
+            const listsInCommon = await listsInCommonService.getListsInCommon()
             res.send(listsInCommon)
         } catch (error) {
             console.log(error)

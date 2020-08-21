@@ -35,7 +35,7 @@ class HtmlParser {
     }
 }
 
-class ListSThatIncludeBookService {
+class ListsThatIncludeBookService {
     constructor(bookId) {
         this.bookId = bookId
     }
@@ -55,7 +55,6 @@ class ListSThatIncludeBookService {
         let lists = parser.getListsOnPage()
         let totalPages = null
         if (page == 1) {
-            console.log('page', page)
             totalPages = parser.getTotalPages()
         }
         return {
@@ -85,4 +84,4 @@ class ListSThatIncludeBookService {
     }
 }
 
-module.exports = ListSThatIncludeBookService
+module.exports = ListsThatIncludeBookService

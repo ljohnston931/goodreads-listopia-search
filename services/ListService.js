@@ -144,8 +144,4 @@ class ListService {
     }
 }
 
-const sleep = ms => {
-    return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 module.exports = ListService

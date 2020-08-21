@@ -31,14 +31,16 @@ exports.scrapeBookListsPage = async (req, res) => {
 }
 
 exports.cacheBookLists = async (req, res) => {
-    console.log('params', req.params, 'body', req.body)
     if (!req.params.bookId || !req.body.bookLists) {
+        console.log(JSON.stringify(req.params))
+        console.log(JSON.stringify(req.body))
         res.sendStatus(400)
     } else {
         try {
+            console.log(JSON.stringify(req.body.bookLists))
             const serviceInstance = new ListsThatIncludeBookService(req.params.bookId)
             await serviceInstance.cacheBookLists(req.body.bookLists)
-            res.send(200)
+            res.sendStatus(200)
         } catch (error) {
             console.log(error)
             res.status(500).send(error)
