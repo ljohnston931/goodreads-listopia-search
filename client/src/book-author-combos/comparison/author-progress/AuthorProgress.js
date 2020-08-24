@@ -36,6 +36,7 @@ const AuthorProgress = props => {
             <div>
                 {authorBooks.map(authorBook => (
                     <BookProgress
+                        key={authorBook.bookId}
                         title={authorBook.title}
                         bookId={authorBook.bookId}
                         onFinish={onFinishBook}
