@@ -108,7 +108,10 @@ const Comparison = React.memo(props => {
     return (
         <section id='comparison'>
             <div className='comparison-header'>{createHeader(props.bookAuthorCombo)}</div>
-            {error ? <div>Error</div> : createBookProgressComponents()}
+            {error && <div>Error</div>}
+            {!error &&
+                loadedCombosCount < props.bookAuthorCombo.length &&
+                createBookProgressComponents()}
             <div className='results'>
                 {listsInCommon.map(list => (
                     <div key={list.href}>
