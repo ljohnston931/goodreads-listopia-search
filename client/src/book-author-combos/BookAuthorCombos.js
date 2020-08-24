@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Comparison from './comparison/Comparison'
 import './book-author-combos.css'
 
@@ -30,6 +30,10 @@ const BookAuthorCombos = props => {
             }
             return combos
         }, [])
+
+    useEffect(() => {
+        setLoadedCombosCount(0)
+    }, [props.queryBooks])
 
     return (
         <section id='book-author-combos'>

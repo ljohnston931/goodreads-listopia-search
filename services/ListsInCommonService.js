@@ -16,7 +16,9 @@ class ListsInCommonService {
         const arraysToCompare = bookLists
             .map(bookList => bookList.lists)
             .concat(authorLists.map(authorList => authorList.lists))
-        const listsInCommon = _.intersectionBy(...arraysToCompare, 'href')
+        const listsInCommon = _.intersectionBy(...arraysToCompare, 'href').filter(
+            list => list.title && list.href
+        )
 
         return listsInCommon
     }
