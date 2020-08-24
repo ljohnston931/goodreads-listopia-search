@@ -1,4 +1,3 @@
-const ListService = require('../services/ListService')
 const ListsInCommonService = require('../services/ListsInCommonService')
 
 exports.getListsInCommon = async (req, res) => {

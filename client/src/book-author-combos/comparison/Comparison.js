@@ -10,6 +10,11 @@ const Comparison = React.memo(props => {
     const [error, setError] = useState(false)
     const [loadedCombosCount, setLoadedCombosCount] = useState(0)
 
+    const handleError = () => {
+        setError(true)
+        props.onFinish()
+    }
+
     const listToString = list => {
         if (list.length === 0) {
             return ''
@@ -48,7 +53,7 @@ const Comparison = React.memo(props => {
 
     const onFinish = status => {
         if (status === Status.Error) {
-            setError(true)
+            handleError()
         } else if (status === Status.Loaded) {
             setLoadedCombosCount(prevCount => prevCount + 1)
         }
@@ -78,7 +83,7 @@ const Comparison = React.memo(props => {
                 }
             })
         } catch (error) {
-            setError(true)
+            handleError()
         }
     }
 
@@ -92,9 +97,10 @@ const Comparison = React.memo(props => {
             getListsInCommon()
                 .then(newListsInCommon => {
                     setListsInCommon(newListsInCommon)
+                    props.onFinish()
                 })
                 .catch(error => {
-                    setError(true)
+                    handleError()
                 })
         }
     }, [loadedCombosCount])
