@@ -6,7 +6,7 @@
   "author": "Lucy Johnston <ljohnston931@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "axios-rate-limit": "^1.2.1",
     "chai": "^4.2.0",
     "cheerio": "^1.0.0-rc.3",
